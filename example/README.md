@@ -44,6 +44,38 @@ Launch the server with:
 
 The server will start on http://localhost:8080, providing an API endpoint at `/api/bank/transactions/:id` that demonstrates parameter handling and JSON responses.
 
+## Testing the API
+
+Once the server is running, you can access the transaction endpoint by navigating to:
+
+```
+http://localhost:8080/api/bank/transactions/{id}
+```
+
+Replace `{id}` with any transaction identifier you wish to query. For example:
+
+```
+http://localhost:8080/api/bank/transactions/12345
+```
+
+### Expected Response
+
+The server will return a JSON response with the transaction ID:
+
+```json
+{
+  "id": "12345"
+}
+```
+
+You can also use curl to test the endpoint:
+
+```bash
+curl http://localhost:8080/api/bank/transactions/12345
+```
+
+The API automatically handles CORS headers, making it ready for use with web applications.
+
 ## How It Works
 
 This example showcases three key aspects of using servuswelt:
