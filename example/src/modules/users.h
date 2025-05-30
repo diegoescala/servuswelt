@@ -5,12 +5,12 @@
 
 #include <cpprest/http_client.h>
 
-class Users : public Module {
+class Users : public servuswelt::Module {
     public:
         Users();
         virtual ~Users();
 
-        const std::vector<Route> getRoutes() const override;
+        const std::vector<servuswelt::Route> getRoutes() const override;
 
     private:
         void getUser(web::http::http_request request) const;

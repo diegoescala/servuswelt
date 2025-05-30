@@ -1,6 +1,7 @@
 #pragma once
 
 #include "route.h"
+#include "module.h"
 #include <cpprest/http_listener.h>
 #include <vector>
 #include <memory>
@@ -8,10 +9,14 @@
 #include <condition_variable>
 #include <mutex>
 
-class Router {
-    public:
-        Router(const std::string& base_uri);
+namespace servuswelt {
+    class Router {
+        public:
+            Router(const std::string& base_uri);
         virtual ~Router();
+
+        void addModule(std::shared_ptr<Module> module);
+
         void addRoute(Route route);
         void handleRequest(web::http::http_request request);
         void startDispatch();
@@ -44,4 +49,5 @@ class Router {
             request.headers().add(U("Access-Control-Allow-Headers"), U("Content-Type, Authorization"));
             request.headers().add(U("Access-Control-Max-Age"), U("86400")); // 24 hours
         }
-};
+    };
+} // namespace servuswelt

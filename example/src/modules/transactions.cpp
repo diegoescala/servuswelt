@@ -14,6 +14,7 @@ using namespace web;
 using namespace web::http;
 using namespace web::json;
 
+using namespace servuswelt;
 Transactions::Transactions() 
 {
 }

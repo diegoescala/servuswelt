@@ -22,7 +22,7 @@ using namespace web::http::client;
 
 namespace {
     // Global pointer for signal handler, in an anonymous namespace
-    Router* g_router = nullptr;
+    servuswelt::Router* g_router = nullptr;
     volatile std::sig_atomic_t g_shutdown_requested = 0;
     
     void signal_handler(int signal) {
@@ -38,28 +38,17 @@ namespace {
     }
 }
 
-void setupRoutes(Router& router, const std::vector<std::shared_ptr<Module>>& modules) {
-    for (auto module : modules) {
-        for (auto route : module->getRoutes()) {
-            router.addRoute(route);
-        }
-    }
-}
-
 int main() {
     try {
-        Router router("http://localhost:8080");
+        servuswelt::Router router("http://localhost:8080");
         g_router = &router;  // Set up global pointer
 
         // Set up signal handling
         std::signal(SIGINT, signal_handler);   // Handle Ctrl+C
         std::signal(SIGTERM, signal_handler);  // Handle termination request
         
-        std::vector<std::shared_ptr<Module>> modules;
-        modules.push_back(std::make_shared<Transactions>());
-        modules.push_back(std::make_shared<Users>());
-        
-        setupRoutes(router, modules);
+        router.addModule(std::make_shared<Transactions>());
+        router.addModule(std::make_shared<Users>());
         
         std::cout << "Server starting. Press Ctrl+C to stop." << std::endl;
         

@@ -11,6 +11,8 @@ using namespace web;
 using namespace web::http;
 using namespace web::json;
 
+using namespace servuswelt;
+
 Users::Users()
 {
 }
@@ -37,7 +39,7 @@ void Users::getUser(web::http::http_request request) const
     user_details["name"] = web::json::value::string("John Doe");
     user_details["email"] = web::json::value::string("john.doe@example.com");
     response["user_details"] = user_details;
-    
+
     Router::replyWithCors(request, status_codes::OK, response);
 }
 

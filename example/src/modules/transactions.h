@@ -5,12 +5,12 @@
 #include <vector>
 #include <memory>
 
-class Transactions : public Module {
+class Transactions : public servuswelt::Module {
     public:
     Transactions();
     virtual ~Transactions();
 
-    const std::vector<Route> getRoutes() const override;
+    const std::vector<servuswelt::Route> getRoutes() const override;
 
     private:
     void getTransaction(web::http::http_request request) const;

@@ -39,19 +39,23 @@ install(TARGETS ${PROJECT_NAME}
 # Create and install CMake package configuration files
 include(CMakePackageConfigHelpers)
 
+# Ensure the cmake directory exists
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/cmake")
+
 # Create a version file
 write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake"
     VERSION 1.0.0
     COMPATIBILITY SameMajorVersion
 )
 
-# Create the config file
-configure_package_config_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-    INSTALL_DESTINATION lib/cmake/${PROJECT_NAME}
-)
+# Create a simple config file manually if template approach fails
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake"
+"include(CMakeFindDependencyMacro)
+find_dependency(cpprestsdk REQUIRED)
+find_dependency(OpenSSL REQUIRED)
+include(\"\${CMAKE_CURRENT_LIST_DIR}/${PROJECT_NAME}Targets.cmake\")
+")
 
 # Install the export set
 install(EXPORT ${PROJECT_NAME}Targets
@@ -62,7 +66,7 @@ install(EXPORT ${PROJECT_NAME}Targets
 
 # Install the config and version files
 install(FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake"
     DESTINATION lib/cmake/${PROJECT_NAME}
 )
