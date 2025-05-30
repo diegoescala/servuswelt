@@ -1,0 +1,15 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# Find cpprestsdk dependency
+find_dependency(cpprestsdk REQUIRED)
+
+# Find OpenSSL dependency
+find_dependency(OpenSSL REQUIRED)
+
+# If using Boost, uncomment this
+# find_dependency(Boost REQUIRED COMPONENTS system filesystem)
+
+# Include target file
+include("${CMAKE_CURRENT_LIST_DIR}/servusweltTargets.cmake") 
