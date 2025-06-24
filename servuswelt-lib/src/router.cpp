@@ -3,13 +3,20 @@
 #include <unordered_map>
 #include <thread>
 #include <chrono>
+#include <fstream>
+#include <iostream>
 
 using namespace web::http;
 using namespace web::http::experimental::listener;
 
 namespace servuswelt {
-    Router::Router(const std::string& base_uri):
-        base_uri_(base_uri), shutdown_requested_(false) {}
+    // Static CORS origin storage
+    static std::string g_cors_origin = "http://localhost:8000";
+    
+    Router::Router(const std::string& base_uri, const std::string& cors_origin):
+        base_uri_(base_uri), cors_origin_(cors_origin), shutdown_requested_(false) {
+        setCorsOrigin(cors_origin);
+    }
 
     Router::~Router() {
         std::cout << "Router destructing, closing listeners..." << std::endl;
@@ -62,9 +69,8 @@ namespace servuswelt {
                 Router::replyWithCors(request, status_codes::OK);
             });
 
-            // Add the method support to the listener with CORS headers
+            // Add the method support to the listener
             listener->support(route.getMethod(), [this, route](http_request request) {
-                addCorsHeaders(request);
                 route.getHandler()(request);
             });
 
@@ -76,9 +82,8 @@ namespace servuswelt {
                 Router::replyWithCors(request, status_codes::OK);
             });
 
-            // Add the method support to the listener with CORS headers
+            // Add the method support to the listener
             it->second->support(route.getMethod(), [this, route](http_request request) {
-                addCorsHeaders(request);
                 route.getHandler()(request);
             });
         }
@@ -136,8 +141,12 @@ namespace servuswelt {
     }
 
     // CORS helpers
+    void Router::setCorsOrigin(const std::string& cors_origin) {
+        g_cors_origin = cors_origin;
+    }
+    
     void Router::addCorsHeaders(web::http::http_response& response) {
-        response.headers().add(U("Access-Control-Allow-Origin"), U("http://localhost:8000"));
+        response.headers().add(U("Access-Control-Allow-Origin"), utility::conversions::to_string_t(g_cors_origin));
         response.headers().add(U("Access-Control-Allow-Methods"), U("GET, POST, PUT, DELETE, OPTIONS"));
         response.headers().add(U("Access-Control-Allow-Headers"), U("Content-Type, Authorization"));
         response.headers().add(U("Access-Control-Allow-Credentials"), U("true"));
