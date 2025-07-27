@@ -4,7 +4,7 @@ project(servuswelt)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(cpprestsdk REQUIRED)
-find_package(OpenSSL REQUIRED)
+find_package(OpenSSL REQUIRED COMPONENTS SSL Crypto)
 
 add_library(${PROJECT_NAME} STATIC src/router.cpp src/route.cpp )
 

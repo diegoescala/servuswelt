@@ -8,11 +8,12 @@
 #include <unordered_map>
 #include <condition_variable>
 #include <mutex>
+#include <regex>
 
 namespace servuswelt {
     class Router {
         public:
-            Router(const std::string& base_uri);
+            Router(const std::string& base_uri, const std::string& cors_origin = "http://localhost:8000");
         virtual ~Router();
 
         void addModule(std::shared_ptr<Module> module);
@@ -25,6 +26,7 @@ namespace servuswelt {
         inline bool isAlive() { return alive_; }
 
         // CORS helpers
+        static void setCorsOrigin(const std::string& cors_origin);
         static void addCorsHeaders(web::http::http_response& response);
         static void replyWithCors(web::http::http_request request, web::http::status_code status, const web::json::value& body);
         static void replyWithCors(web::http::http_request request, web::http::status_code status);
@@ -34,6 +36,7 @@ namespace servuswelt {
         std::vector<Route> routes_;
         std::vector<pplx::task<void>> open_tasks_;
         std::string base_uri_;
+        std::string cors_origin_;
 
         bool alive_ = true;
 
@@ -42,12 +45,17 @@ namespace servuswelt {
         std::mutex shutdown_mutex_;
         bool shutdown_requested_ = false;
 
-        // Helper function to add CORS headers
-        void addCorsHeaders(web::http::http_request& request) {
-            request.headers().add(U("Access-Control-Allow-Origin"), U("*"));
-            request.headers().add(U("Access-Control-Allow-Methods"), U("GET, POST, PUT, DELETE, OPTIONS"));
-            request.headers().add(U("Access-Control-Allow-Headers"), U("Content-Type, Authorization"));
-            request.headers().add(U("Access-Control-Max-Age"), U("86400")); // 24 hours
-        }
+        // Route matching helpers
+        struct RouteMatch {
+            const Route* route;
+            std::unordered_map<std::string, std::string> params;
+            int specificity_score;
+            
+            RouteMatch() : route(nullptr), specificity_score(-1) {}
+        };
+        
+        RouteMatch findBestRoute(const std::string& path, web::http::method method, const std::string& base_path) const;
+        bool matchRoute(const std::string& path, const std::string& route_pattern, std::unordered_map<std::string, std::string>& params) const;
+        int calculateSpecificity(const std::string& route_pattern) const;
     };
 } // namespace servuswelt
