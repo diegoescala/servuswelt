@@ -70,42 +70,36 @@ namespace servuswelt {
                 Router::replyWithCors(request, status_codes::OK);
             });
 
-            // Add route matching handler for all methods
-            listener->support(route.getMethod(), [this, base_path](http_request request) {
-                auto path = request.relative_uri().path();
-                auto method = request.method();
-                
-                std::cout << "DEBUG: Request path=" << path << ", base_path=" << base_path << ", method=" << method << std::endl;
-                
-                // Find the best matching route
-                auto match = findBestRoute(path, method, base_path);
-                
-                if (match.route != nullptr) {
-                    std::cout << "DEBUG: Matched route: " << match.route->getPath() << std::endl;
-                    // Store matched parameters in request for extraction by handlers
-                    // Note: cpprest doesn't provide a clean way to pass custom data,
-                    // so handlers need to do their own parameter extraction
-                    match.route->getHandler()(request);
-                } else {
-                    std::cout << "DEBUG: No matching route found for path=" << path << ", base_path=" << base_path << std::endl;
-                    // No matching route found
-                    web::json::value error;
-                    error[U("error")] = web::json::value::string("Not Found");
-                    Router::replyWithCors(request, status_codes::NotFound, error);
-                }
-            });
-
             open_tasks_.push_back(listener->open());
             std::cout << "Listening for requests at " << listener->uri().to_string() << std::endl;
-        } else {
-            // Add CORS handling for OPTIONS requests if not already added
-            it->second->support(methods::OPTIONS, [this](http_request request) {
-                Router::replyWithCors(request, status_codes::OK);
-            });
-
-            // The route matching handler is already set up for this base path
-            // All routes with the same base path will be handled by the same matcher
         }
+        
+        // Always add method handler for this specific route's method
+        // This ensures every route gets its method registered, not just the first one
+        auto listener = listeners_[base_path];
+        listener->support(route.getMethod(), [this, base_path](http_request request) {
+            auto path = request.relative_uri().path();
+            auto method = request.method();
+            
+            std::cout << "DEBUG: Request path=" << path << ", base_path=" << base_path << ", method=" << method << std::endl;
+            
+            // Find the best matching route
+            auto match = findBestRoute(path, method, base_path);
+            
+            if (match.route != nullptr) {
+                std::cout << "DEBUG: Matched route: " << match.route->getPath() << std::endl;
+                // Store matched parameters in request for extraction by handlers
+                // Note: cpprest doesn't provide a clean way to pass custom data,
+                // so handlers need to do their own parameter extraction
+                match.route->getHandler()(request);
+            } else {
+                std::cout << "DEBUG: No matching route found for path=" << path << ", base_path=" << base_path << std::endl;
+                // No matching route found
+                web::json::value error;
+                error[U("error")] = web::json::value::string("Not Found");
+                Router::replyWithCors(request, status_codes::NotFound, error);
+            }
+        });
     }
 
     void Router::startDispatch() {

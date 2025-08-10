@@ -30,6 +30,16 @@ namespace servuswelt {
         static void addCorsHeaders(web::http::http_response& response);
         static void replyWithCors(web::http::http_request request, web::http::status_code status, const web::json::value& body);
         static void replyWithCors(web::http::http_request request, web::http::status_code status);
+        
+        // Testing helpers - expose internal methods for unit testing
+        #ifdef SERVUSWELT_TESTING
+        bool testMatchRoute(const std::string& path, const std::string& route_pattern, std::unordered_map<std::string, std::string>& params) const {
+            return matchRoute(path, route_pattern, params);
+        }
+        int testCalculateSpecificity(const std::string& route_pattern) const {
+            return calculateSpecificity(route_pattern);
+        }
+        #endif
 
     private:
         std::unordered_map<std::string, std::shared_ptr<web::http::experimental::listener::http_listener>> listeners_;

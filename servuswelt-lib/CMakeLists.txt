@@ -26,6 +26,34 @@ target_link_libraries(${PROJECT_NAME}
         OpenSSL::Crypto
 )
 
+# Create alias for linking in tests
+add_library(servuswelt-lib ALIAS ${PROJECT_NAME})
+
+# Include tests if requested
+option(BUILD_TESTS "Build tests" OFF)
+if(BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
+
+# Simple standalone test executable
+add_executable(simple_test tests/simple_test.cpp)
+target_link_libraries(simple_test 
+    ${PROJECT_NAME}
+    ${cpprestsdk_LIBRARIES}
+    cpprestsdk::cpprest
+    OpenSSL::SSL
+    OpenSSL::Crypto
+)
+set_property(TARGET simple_test PROPERTY CXX_STANDARD 17)
+
+# Add test target
+add_custom_target(test
+    COMMAND simple_test
+    DEPENDS simple_test
+    COMMENT "Running Servuswelt router tests"
+)
+
 file(GLOB HEADER_FILES "src/*.h")
 install(FILES ${HEADER_FILES} DESTINATION include/${PROJECT_NAME})
 install(TARGETS ${PROJECT_NAME} 

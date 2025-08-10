@@ -1,0 +1,2 @@
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar qc libservuswelt.a CMakeFiles/servuswelt.dir/src/router.cpp.o CMakeFiles/servuswelt.dir/src/route.cpp.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib libservuswelt.a
